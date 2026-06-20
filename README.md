@@ -4,6 +4,8 @@ Flight price alert app prototype built with Expo and React Native.
 
 FarePing is a portfolio project exploring a Korean-first flight fare alert product. Users choose departure and arrival airports, trip type, target price, stopover preferences, and baggage conditions. The app then shows saved alerts, notification-style updates, and an affiliate handoff flow.
 
+[Live Demo](https://ddeongkyu.github.io/fare_ping/)
+
 ![FarePing app home](./assets/fareping-rn-app-home.png)
 
 ## Why This Project
@@ -33,10 +35,15 @@ This repository focuses on the product and frontend foundation:
 .
 ├── App.js                         # Expo entry UI and screen composition
 ├── src
+│   ├── AppRoot.js                  # App state and screen switching
+│   ├── components                  # Reusable UI and alert form controls
 │   ├── config/appConfig.js         # Public client config
 │   ├── data/flightData.js          # Mock flight, airport, and chart data
 │   ├── domain/flightAlerts.js      # Alert creation, validation, and formatting
-│   └── services/affiliate.js       # Affiliate handoff URL builder
+│   ├── navigation/BottomNav.js     # Bottom tab navigation
+│   ├── screens                     # Home, create, detail, and notifications
+│   ├── services/affiliate.js       # Affiliate handoff URL builder
+│   └── theme                       # Colors and shared React Native styles
 ├── scripts/test-aviasales-api.mjs  # Local API validation helper
 ├── assets                          # Portfolio screenshots and visual assets
 └── mockups.html                    # Static web/app mockup board
@@ -55,6 +62,7 @@ Open [http://localhost:8081](http://localhost:8081).
 
 ```bash
 npm run web
+npm run build:pages
 npm run check
 npm run test:aviasales
 ```
@@ -101,4 +109,3 @@ Next:
 - `.env` files are ignored by Git.
 - The default affiliate URL is a public placeholder.
 - Travelpayouts/Aviasales API tokens should only be used through secure backend infrastructure.
-
