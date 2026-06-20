@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flight Price Alert Sanity Check</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="progress" aria-hidden="true">
+      <span id="progressBar"></span>
+    </div>
+
+    <main class="deck" id="deck" aria-live="polite">
+      <section class="slide cover active" data-kicker="Concept Deck">
+        <img
+          class="cover-media"
+          src="./assets/flight-alert-hero.png"
+          alt="Airport lounge with route monitoring dashboard overlay"
+        />
+        <div class="cover-shade"></div>
+        <div class="slide-inner cover-inner">
+          <div class="eyebrow">Flight Price Alert · Sanity Check</div>
+          <h1>항공권 최저가 알림 서비스</h1>
+          <p class="lead">
+            유저가 원하는 노선과 기간을 등록하면 가격 변화를 계속 추적하고,
+            조건이 좋아졌을 때 이메일과 앱 알림으로 예약 링크를 보내는 서비스.
+          </p>
+          <div class="cover-metrics">
+            <div>
+              <strong>Go</strong>
+              <span>한국/일본 인기 노선부터</span>
+            </div>
+            <div>
+              <strong>$0-65</strong>
+              <span>초기 운영비 가정</span>
+            </div>
+            <div>
+              <strong>1.1-1.5%</strong>
+              <span>항공권 커미션 범위</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-kicker="01 Problem">
+        <div class="slide-inner split">
+          <div>
+            <div class="eyebrow">01 · Problem</div>
+            <h2>사람들은 싸게 사고 싶지만, 계속 검색하고 싶지는 않다.</h2>
+            <p>
+              Google Flights와 Skyscanner는 강력하지만, 사용자는 여전히 가격이
+              바뀌었는지 직접 확인하거나 여러 날짜를 반복해서 비교한다.
+            </p>
+          </div>
+          <div class="pain-board">
+            <article>
+              <span class="icon-dot coral"></span>
+              <h3>반복 검색</h3>
+              <p>출발지, 도착지, 날짜, 필터를 매번 다시 맞춘다.</p>
+            </article>
+            <article>
+              <span class="icon-dot amber"></span>
+              <h3>타이밍 불안</h3>
+              <p>지금 사야 하는지, 며칠 더 기다릴지 판단이 어렵다.</p>
+            </article>
+            <article>
+              <span class="icon-dot teal"></span>
+              <h3>조건 비교</h3>
+              <p>직항, 수하물, 환불 조건까지 보면 최저가 의미가 흔들린다.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-kicker="02 Concept">
+        <div class="slide-inner">
+          <div class="eyebrow">02 · Product Concept</div>
+          <h2>검색을 “한 번의 설정”으로 바꾼다.</h2>
+          <div class="flow">
+            <article>
+              <span>1</span>
+              <h3>노선 등록</h3>
+              <p>ICN → NRT, 목표가, 여행 가능 기간을 입력한다.</p>
+            </article>
+            <article>
+              <span>2</span>
+              <h3>서버 체크</h3>
+              <p>주기적으로 가격 API를 조회하고 가격 히스토리를 저장한다.</p>
+            </article>
+            <article>
+              <span>3</span>
+              <h3>가격 갱신</h3>
+              <p>목표가 이하 또는 최저가 갱신 시 알림 후보로 분류한다.</p>
+            </article>
+            <article>
+              <span>4</span>
+              <h3>예약 이동</h3>
+              <p>affiliate deeplink로 항공사나 OTA 예약 페이지에 보낸다.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-kicker="03 Positioning">
+        <div class="slide-inner">
+          <div class="eyebrow">03 · Competitive Positioning</div>
+          <h2>큰 플레이어와 정면승부하지 말고, 더 좁고 친절하게 간다.</h2>
+          <div class="matrix">
+            <div class="matrix-head">서비스</div>
+            <div class="matrix-head">강점</div>
+            <div class="matrix-head">빈틈</div>
+            <div>Google Flights</div>
+            <div>검색 품질, 가격 추적, 신뢰도</div>
+            <div>특정 사용자 상황에 맞춘 항공권 딜 추천은 약함</div>
+            <div>Skyscanner</div>
+            <div>글로벌 OTA 비교, 넓은 커버리지</div>
+            <div>알림 경험이 범용적이고 깊은 로컬 맥락은 적음</div>
+            <div>Hopper/KAYAK</div>
+            <div>가격 예측, 앱 중심 경험</div>
+            <div>한국/일본 특정 노선 UX는 차별화 여지</div>
+            <div class="accent-row">우리 MVP</div>
+            <div class="accent-row">한국/일본 인기 노선, 이메일 중심, 목표가 알림</div>
+            <div class="accent-row">작게 시작하지만 신뢰와 전환을 검증 가능</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-kicker="04 Data">
+        <div class="slide-inner">
+          <div class="eyebrow">04 · API & Data Reality</div>
+          <h2>초기에는 “실시간 전 세계 최저가”보다 “최근 발견된 저가”가 현실적이다.</h2>
+          <div class="option-grid">
+            <article>
+              <div class="chip green">MVP 우선</div>
+              <h3>Travelpayouts + Aviasales</h3>
+              <p>초기 비용 부담이 낮고 affiliate를 바로 붙일 수 있다. 단, 캐시 기반 가격이다.</p>
+            </article>
+            <article>
+              <div class="chip blue">승인 필요</div>
+              <h3>Skyscanner API</h3>
+              <p>데이터와 revenue share 구조가 매력적이지만 상업 승인과 계약이 필요하다.</p>
+            </article>
+            <article>
+              <div class="chip coral">주의</div>
+              <h3>Duffel</h3>
+              <p>검색보다 예약 API에 가깝다. 알림 서비스는 검색량이 많아 비용 리스크가 있다.</p>
+            </article>
+            <article>
+              <div class="chip amber">보조</div>
+              <h3>Paid Price APIs</h3>
+              <p>FlightAPI, SerpApi류는 프로토타입에는 편하지만 장기 핵심 소스는 신중해야 한다.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-kicker="05 Money">
+        <div class="slide-inner split money-slide">
+          <div>
+            <div class="eyebrow">05 · Monetization</div>
+            <h2>항공권 커미션만으로는 얇다. 그래도 시작 수익화는 가능하다.</h2>
+            <p>
+              항공권 affiliate는 예약 금액 대비 커미션이 낮은 편이다. 그래서
+              항공권 클릭으로 시작하되, 프리미엄 알림과 여행 부가상품을 함께 봐야 한다.
+            </p>
+          </div>
+          <div class="revenue-card">
+            <div class="revenue-ring">
+              <span>1.1-1.5%</span>
+            </div>
+            <dl>
+              <div>
+                <dt>$700 티켓</dt>
+                <dd>대략 $7-10 gross</dd>
+              </div>
+              <div>
+                <dt>좋은 보완책</dt>
+                <dd>구독, 호텔, 렌터카, 보험 affiliate</dd>
+              </div>
+              <div>
+                <dt>핵심 지표</dt>
+                <dd>알림 클릭률과 실제 예약 전환</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-kicker="06 Cost">
+        <div class="slide-inner">
+          <div class="eyebrow">06 · Cost Envelope</div>
+          <h2>초기 서버비는 작다. 진짜 변수는 외부 항공권 데이터다.</h2>
+          <div class="cost-stack">
+            <article>
+              <strong>$0-25</strong>
+              <span>Supabase Free 또는 Pro</span>
+            </article>
+            <article>
+              <strong>$0-20</strong>
+              <span>이메일 발송</span>
+            </article>
+            <article>
+              <strong>$0</strong>
+              <span>Travelpayouts 시작 비용</span>
+            </article>
+            <article>
+              <strong>$0-20</strong>
+              <span>프론트 배포/worker</span>
+            </article>
+          </div>
+          <div class="callout">
+            <strong>권장 시작선:</strong>
+            <span>월 $0-65 안에서 MVP를 검증하고, 유료 가격 API는 클릭/전환 신호가 보인 뒤 붙인다.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-kicker="07 Architecture">
+        <div class="slide-inner">
+          <div class="eyebrow">07 · MVP Architecture</div>
+          <h2>알림 하나마다 서버를 깨우지 말고, 배치로 묶어서 체크한다.</h2>
+          <div class="architecture">
+            <article>
+              <h3>Web</h3>
+              <p>노선/목표가/이메일 등록</p>
+            </article>
+            <article>
+              <h3>Supabase</h3>
+              <p>Auth, alerts, route, price history</p>
+            </article>
+            <article>
+              <h3>Cron Worker</h3>
+              <p>due 상태 알림을 묶어 API 호출</p>
+            </article>
+            <article>
+              <h3>Flight Data</h3>
+              <p>Aviasales 먼저, 이후 Skyscanner 검토</p>
+            </article>
+            <article>
+              <h3>Email</h3>
+              <p>목표가 이하일 때만 발송</p>
+            </article>
+            <article>
+              <h3>Affiliate Link</h3>
+              <p>예약 페이지로 이동하고 클릭/전환 추적</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-kicker="08 MVP Scope">
+        <div class="slide-inner split">
+          <div>
+            <div class="eyebrow">08 · First Scope</div>
+            <h2>처음 약속은 작게, 대신 또렷하게.</h2>
+            <p>
+              “전 세계 최저가 앱”이 아니라 “한국/일본 인기 국제선 저가 알림”으로
+              시작하면 데이터 비용과 UX 범위를 동시에 줄일 수 있다.
+            </p>
+          </div>
+          <div class="route-list">
+            <div><span>ICN</span><i></i><span>NRT</span></div>
+            <div><span>GMP</span><i></i><span>HND</span></div>
+            <div><span>PUS</span><i></i><span>FUK</span></div>
+            <div><span>ICN</span><i></i><span>KIX</span></div>
+            <div><span>ICN</span><i></i><span>YVR</span></div>
+            <div><span>ICN</span><i></i><span>CDG</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-kicker="09 Risks">
+        <div class="slide-inner">
+          <div class="eyebrow">09 · Risk Register</div>
+          <h2>위험은 명확하다. 그래서 검증 순서도 명확하다.</h2>
+          <div class="risk-grid">
+            <article class="high">
+              <span>High</span>
+              <h3>가격 데이터 신뢰도</h3>
+              <p>캐시 가격이 실제 결제 가격과 다를 수 있다.</p>
+            </article>
+            <article class="high">
+              <span>High</span>
+              <h3>커미션 전환</h3>
+              <p>클릭은 많아도 예약 수익은 작을 수 있다.</p>
+            </article>
+            <article class="medium">
+              <span>Medium</span>
+              <h3>쿼리 폭증</h3>
+              <p>유저별 flexible date 검색은 호출량을 빠르게 늘린다.</p>
+            </article>
+            <article class="medium">
+              <span>Medium</span>
+              <h3>경쟁 서비스</h3>
+              <p>범용 price alert는 이미 큰 플레이어가 잘한다.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-kicker="10 Roadmap">
+        <div class="slide-inner">
+          <div class="eyebrow">10 · 30/60/90</div>
+          <h2>첫 목표는 런칭이 아니라, 데이터와 수익화 링크의 증명이다.</h2>
+          <div class="timeline">
+            <article>
+              <span>30일</span>
+              <h3>데이터 검증</h3>
+              <p>20개 노선 가격 수집, 히스토리 저장, affiliate 클릭 집계 확인.</p>
+            </article>
+            <article>
+              <span>60일</span>
+              <h3>비공개 베타</h3>
+              <p>이메일 알림, 목표가 조건, 인기 노선 50개, 오픈/클릭률 측정.</p>
+            </article>
+            <article>
+              <span>90일</span>
+              <h3>수익성 판단</h3>
+              <p>예약 전환 신호 확인 후 Skyscanner 신청 또는 유료 가격 API 실험.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide final-slide" data-kicker="11 Recommendation">
+        <div class="slide-inner">
+          <div class="eyebrow">11 · Recommendation</div>
+          <h2>판단: 해볼 만하다. 단, 처음엔 모두를 위한 앱이 아니라 좁은 타깃부터 검증한다.</h2>
+          <div class="decision">
+            <div>
+              <strong>Start</strong>
+              <p>Travelpayouts/Aviasales로 데이터와 deeplink를 먼저 검증한다.</p>
+            </div>
+            <div>
+              <strong>Focus</strong>
+              <p>한국/일본 인기 노선, 웹, 이메일 알림만으로 시작한다.</p>
+            </div>
+            <div>
+              <strong>Measure</strong>
+              <p>오픈율, 클릭률, 예약 전환, 알림 유지율을 본다.</p>
+            </div>
+          </div>
+          <div class="verdict">작게 시작하고, 빠르게 검증.</div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="side-panel" aria-label="Deck overview">
+      <div class="brand">FarePing</div>
+      <div class="slide-count"><span id="currentSlide">01</span>/<span id="totalSlides">11</span></div>
+      <nav id="thumbNav" aria-label="Slides"></nav>
+      <div class="mode-toggle" role="group" aria-label="Presentation mode">
+        <button class="mode active" data-mode="pitch">Pitch</button>
+        <button class="mode" data-mode="ops">Ops</button>
+      </div>
+    </aside>
+
+    <div class="controls" aria-label="Slide controls">
+      <button id="prevBtn" class="icon-button" type="button" aria-label="Previous slide" title="Previous slide">
+        <i data-lucide="chevron-left"></i>
+      </button>
+      <button id="nextBtn" class="icon-button" type="button" aria-label="Next slide" title="Next slide">
+        <i data-lucide="chevron-right"></i>
+      </button>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>

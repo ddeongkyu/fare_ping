@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FarePing Product Mockups</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./mockups.css" />
+  </head>
+  <body>
+    <main class="mockup-board">
+      <header class="board-header">
+        <div>
+          <p class="eyebrow">FarePing · Web & React Native Mockup</p>
+          <h1>항공권 가격 알림 서비스 목업</h1>
+        </div>
+        <div class="board-meta">
+          <span>KR/JP routes</span>
+          <span>Affiliate-ready</span>
+          <span>Email + Push</span>
+        </div>
+      </header>
+
+      <section class="web-section" id="web-mockup" aria-labelledby="webTitle">
+        <div class="section-heading">
+          <p class="eyebrow">Web</p>
+          <h2 id="webTitle">랜딩과 알림 대시보드</h2>
+        </div>
+
+        <div class="browser-frame landing-screen">
+          <div class="browser-top">
+            <span></span>
+            <span></span>
+            <span></span>
+            <div>fareping.app</div>
+          </div>
+          <div class="landing-content">
+            <nav class="top-nav">
+              <div class="logo-mark">
+                <i data-lucide="radar"></i>
+                <strong>FarePing</strong>
+              </div>
+              <div class="nav-actions">
+                <button type="button" class="ghost-btn">로그인</button>
+                <button type="button" class="primary-btn">
+                  <i data-lucide="bell-plus"></i>
+                  알림 만들기
+                </button>
+              </div>
+            </nav>
+
+            <section class="hero-grid">
+              <div class="hero-copy">
+                <span class="market-pill">서울 · 부산 출발 국제선</span>
+                <h3>원하는 가격이 오면 말고, 내려갔을 때만.</h3>
+                <p>
+                  일본·캐나다 인기 노선을 저장하고 목표가 이하 항공권이 발견되면
+                  바로 알림을 받습니다.
+                </p>
+                <div class="hero-actions">
+                  <button type="button" class="primary-btn">
+                    <i data-lucide="mail-check"></i>
+                    대기자 등록
+                  </button>
+                  <button type="button" class="outline-btn">
+                    <i data-lucide="play-circle"></i>
+                    샘플 보기
+                  </button>
+                </div>
+              </div>
+
+              <form class="search-panel" aria-label="Create fare alert mockup">
+                <div class="route-row">
+                  <label>
+                    <span>From</span>
+                    <strong>ICN</strong>
+                    <small>Seoul</small>
+                  </label>
+                  <button type="button" aria-label="Swap route" class="swap-btn">
+                    <i data-lucide="arrow-left-right"></i>
+                  </button>
+                  <label>
+                    <span>To</span>
+                    <strong>NRT</strong>
+                    <small>Tokyo</small>
+                  </label>
+                </div>
+                <div class="form-grid">
+                  <label>
+                    <span>Month</span>
+                    <strong>2026.09</strong>
+                  </label>
+                  <label>
+                    <span>Target</span>
+                    <strong>₩150,000</strong>
+                  </label>
+                </div>
+                <label class="email-field">
+                  <span>Email</span>
+                  <strong>you@example.com</strong>
+                </label>
+                <button type="button" class="primary-btn full-btn">
+                  <i data-lucide="send"></i>
+                  가격 알림 받기
+                </button>
+              </form>
+            </section>
+          </div>
+        </div>
+
+        <div class="browser-frame dashboard-screen">
+          <div class="browser-top">
+            <span></span>
+            <span></span>
+            <span></span>
+            <div>fareping.app/alerts</div>
+          </div>
+          <div class="dashboard-layout">
+            <aside class="web-sidebar">
+              <div class="logo-mark">
+                <i data-lucide="radar"></i>
+                <strong>FarePing</strong>
+              </div>
+              <a class="active"><i data-lucide="bell"></i>알림</a>
+              <a><i data-lucide="line-chart"></i>가격 추이</a>
+              <a><i data-lucide="mail"></i>이메일</a>
+              <a><i data-lucide="settings"></i>설정</a>
+            </aside>
+            <section class="web-main">
+              <div class="main-title">
+                <div>
+                  <p class="eyebrow">My alerts</p>
+                  <h3>가격 알림 4개</h3>
+                </div>
+                <button type="button" class="primary-btn">
+                  <i data-lucide="plus"></i>
+                  새 알림
+                </button>
+              </div>
+
+              <div class="stats-row">
+                <article>
+                  <span>오늘 발견</span>
+                  <strong>3</strong>
+                </article>
+                <article>
+                  <span>최저가 갱신</span>
+                  <strong>1</strong>
+                </article>
+                <article>
+                  <span>평균 절감</span>
+                  <strong>₩42k</strong>
+                </article>
+              </div>
+
+              <div class="alert-list">
+                <article class="alert-item hot">
+                  <div class="route-code">
+                    <strong>ICN</strong>
+                    <i data-lucide="plane"></i>
+                    <strong>NRT</strong>
+                  </div>
+                  <div>
+                    <h4>서울 → 도쿄</h4>
+                    <p>9월 · 직항 · 최근 발견가</p>
+                  </div>
+                  <div class="price-block">
+                    <span>현재 최저</span>
+                    <strong>₩148,266</strong>
+                  </div>
+                  <button type="button" class="book-btn">보기</button>
+                </article>
+
+                <article class="alert-item">
+                  <div class="route-code">
+                    <strong>ICN</strong>
+                    <i data-lucide="plane"></i>
+                    <strong>KIX</strong>
+                  </div>
+                  <div>
+                    <h4>서울 → 오사카</h4>
+                    <p>9월 · 직항 · 목표가 도달</p>
+                  </div>
+                  <div class="price-block">
+                    <span>현재 최저</span>
+                    <strong>₩85,085</strong>
+                  </div>
+                  <button type="button" class="book-btn">보기</button>
+                </article>
+
+                <article class="alert-item">
+                  <div class="route-code">
+                    <strong>GMP</strong>
+                    <i data-lucide="plane"></i>
+                    <strong>HND</strong>
+                  </div>
+                  <div>
+                    <h4>김포 → 하네다</h4>
+                    <p>9월 · 직항 · 추적 중</p>
+                  </div>
+                  <div class="price-block">
+                    <span>현재 최저</span>
+                    <strong>₩241,233</strong>
+                  </div>
+                  <button type="button" class="book-btn">보기</button>
+                </article>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="app-section" id="app-mockup" aria-labelledby="appTitle">
+        <div class="section-heading">
+          <p class="eyebrow">React Native</p>
+          <h2 id="appTitle">모바일 앱 화면</h2>
+        </div>
+
+        <div class="phone-grid">
+          <article class="phone-frame">
+            <div class="phone-screen app-home">
+              <div class="phone-status">
+                <span>9:41</span>
+                <i data-lucide="wifi"></i>
+              </div>
+              <header class="app-header">
+                <div>
+                  <span>FarePing</span>
+                  <h3>오늘의 항공권</h3>
+                </div>
+                <button type="button" class="round-btn"><i data-lucide="bell"></i></button>
+              </header>
+
+              <section class="deal-hero">
+                <div>
+                  <span>ICN → KIX</span>
+                  <strong>₩85,085</strong>
+                  <p>목표가보다 ₩24,915 낮음</p>
+                </div>
+                <button type="button">예약 보기</button>
+              </section>
+
+              <div class="mini-chart">
+                <span style="height: 42%"></span>
+                <span style="height: 58%"></span>
+                <span style="height: 50%"></span>
+                <span style="height: 64%"></span>
+                <span style="height: 38%"></span>
+                <span style="height: 44%"></span>
+                <span style="height: 31%"></span>
+              </div>
+
+              <section class="mobile-list">
+                <article>
+                  <div><strong>NRT</strong><span>서울 → 도쿄</span></div>
+                  <b>₩148k</b>
+                </article>
+                <article>
+                  <div><strong>HND</strong><span>김포 → 하네다</span></div>
+                  <b>₩241k</b>
+                </article>
+              </section>
+            </div>
+            <h4>Home</h4>
+          </article>
+
+          <article class="phone-frame">
+            <div class="phone-screen create-alert">
+              <div class="phone-status">
+                <span>9:41</span>
+                <i data-lucide="battery-full"></i>
+              </div>
+              <header class="app-header compact">
+                <button type="button" class="round-btn"><i data-lucide="chevron-left"></i></button>
+                <h3>알림 만들기</h3>
+                <button type="button" class="round-btn"><i data-lucide="x"></i></button>
+              </header>
+
+              <div class="app-form-card">
+                <label>
+                  <span>출발</span>
+                  <strong>ICN · Seoul</strong>
+                </label>
+                <label>
+                  <span>도착</span>
+                  <strong>NRT · Tokyo</strong>
+                </label>
+                <label>
+                  <span>여행 월</span>
+                  <strong>2026년 9월</strong>
+                </label>
+                <label>
+                  <span>목표 가격</span>
+                  <strong>₩150,000</strong>
+                </label>
+              </div>
+
+              <div class="filter-row">
+                <button type="button" class="selected"><i data-lucide="plane"></i>직항</button>
+                <button type="button"><i data-lucide="briefcase"></i>수하물</button>
+              </div>
+
+              <button type="button" class="app-primary">저장</button>
+            </div>
+            <h4>Create Alert</h4>
+          </article>
+
+          <article class="phone-frame">
+            <div class="phone-screen deal-detail">
+              <div class="phone-status">
+                <span>9:41</span>
+                <i data-lucide="wifi"></i>
+              </div>
+              <header class="app-header compact">
+                <button type="button" class="round-btn"><i data-lucide="chevron-left"></i></button>
+                <h3>서울 → 도쿄</h3>
+                <button type="button" class="round-btn"><i data-lucide="share"></i></button>
+              </header>
+
+              <section class="route-ticket">
+                <div class="airport-pair">
+                  <strong>ICN</strong>
+                  <span></span>
+                  <strong>NRT</strong>
+                </div>
+                <div class="ticket-price">
+                  <span>최근 발견가</span>
+                  <strong>₩148,266</strong>
+                </div>
+              </section>
+
+              <div class="detail-grid">
+                <article><span>출발</span><strong>9월 1일</strong></article>
+                <article><span>조건</span><strong>직항</strong></article>
+                <article><span>목표가</span><strong>₩150k</strong></article>
+                <article><span>상태</span><strong>도달</strong></article>
+              </div>
+
+              <button type="button" class="app-primary">Aviasales에서 보기</button>
+            </div>
+            <h4>Deal Detail</h4>
+          </article>
+
+          <article class="phone-frame">
+            <div class="phone-screen alerts-screen">
+              <div class="phone-status">
+                <span>9:41</span>
+                <i data-lucide="battery-full"></i>
+              </div>
+              <header class="app-header">
+                <div>
+                  <span>Notifications</span>
+                  <h3>알림함</h3>
+                </div>
+                <button type="button" class="round-btn"><i data-lucide="sliders-horizontal"></i></button>
+              </header>
+
+              <section class="notification-list">
+                <article class="fresh">
+                  <i data-lucide="trending-down"></i>
+                  <div>
+                    <strong>오사카 항공권이 내려갔어요</strong>
+                    <span>ICN → KIX · ₩85,085</span>
+                  </div>
+                </article>
+                <article>
+                  <i data-lucide="bell-ring"></i>
+                  <div>
+                    <strong>도쿄 목표가 도달</strong>
+                    <span>ICN → NRT · ₩148,266</span>
+                  </div>
+                </article>
+                <article>
+                  <i data-lucide="clock-3"></i>
+                  <div>
+                    <strong>밴쿠버 추적 중</strong>
+                    <span>ICN → YVR · ₩916,820</span>
+                  </div>
+                </article>
+              </section>
+            </div>
+            <h4>Notifications</h4>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const captureMode = new URLSearchParams(window.location.search).get("capture");
+      if (captureMode === "web" || captureMode === "app") {
+        document.body.classList.add(`capture-${captureMode}`);
+      }
+    </script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script>
+      window.lucide?.createIcons();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "FarePing",
+    "slug": "fareping",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "fareping",
+    "userInterfaceStyle": "light",
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "ios": {
+      "bundleIdentifier": "app.fareping.mobile",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "app.fareping.mobile",
+      "edgeToEdgeEnabled": true
+    }
+  }
+}
