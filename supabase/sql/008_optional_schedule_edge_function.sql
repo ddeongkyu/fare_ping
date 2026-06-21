@@ -19,7 +19,7 @@ create extension if not exists pg_net with schema extensions;
 --   '*/30 * * * *',
 --   $$
 --   select net.http_post(
---     url := 'https://PROJECT_REF.functions.supabase.co/check-fares?limit=20',
+--     url := 'https://zvtedscvvwwkcdmvfgro.supabase.co/functions/v1/check-fares?limit=20',
 --     headers := jsonb_build_object(
 --       'Content-Type', 'application/json',
 --       'Authorization', 'Bearer CRON_SECRET'

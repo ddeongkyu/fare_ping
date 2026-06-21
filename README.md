@@ -71,6 +71,10 @@ Open [http://localhost:8081](http://localhost:8081).
 npm run web
 npm run build:pages
 npm run check
+npm run edge:preflight
+npm run edge:secrets:set
+npm run edge:deploy
+npm run edge:invoke -- --limit=1
 npm run test:supabase
 npm run test:aviasales
 ```
@@ -99,13 +103,13 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_key_here
 
 For a real product, flight API tokens and scheduled price checks should live in a backend or serverless function, not inside the mobile app.
 
-For the Edge Function, copy `supabase/.env.example` to `supabase/.env` locally or set secrets in Supabase:
+For the Edge Function, copy `supabase/.env.example` to `supabase/.env.edge.local`, fill the real secrets, then deploy:
 
 ```bash
-npx supabase secrets set TRAVELPAYOUTS_TOKEN=your_token_here
-npx supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-npx supabase secrets set FAREPING_CRON_SECRET=your_random_cron_secret
-npx supabase functions deploy check-fares
+cp supabase/.env.example supabase/.env.edge.local
+npx supabase link --project-ref zvtedscvvwwkcdmvfgro
+npm run edge:secrets:set
+npm run edge:deploy
 ```
 
 Never expose the service role key in the Expo app.
