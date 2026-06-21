@@ -45,6 +45,7 @@ This repository focuses on the product and frontend foundation:
 │   ├── services/affiliate.js       # Affiliate handoff URL builder
 │   └── theme                       # Colors and shared React Native styles
 ├── scripts/test-aviasales-api.mjs  # Local API validation helper
+├── supabase/sql                    # Ordered Supabase schema setup files
 ├── assets                          # Portfolio screenshots and visual assets
 └── mockups.html                    # Static web/app mockup board
 ```
@@ -95,6 +96,7 @@ Done:
 - Home, create alert, notification inbox, and detail screens
 - In-memory alert creation and notification summary
 - Portfolio-ready public repo cleanup
+- Ordered Supabase SQL schema for auth profiles, fare alerts, fare observations, notifications, and RLS
 
 Next:
 
