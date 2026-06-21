@@ -1,14 +1,14 @@
 import { Briefcase, MapPin, Plane, X } from "lucide-react-native";
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, Text, TextInput, View } from "react-native";
 import Svg, { Circle, Line, Polyline, Rect } from "react-native-svg";
 
 import { airportOptions, previousYearTrend } from "../data/flightData";
-import { formatWon, routeName } from "../domain/flightAlerts";
+import { CABIN_LABELS, formatWon, routeName } from "../domain/flightAlerts";
 import { colors } from "../theme/colors";
 import { styles } from "../theme/styles";
 
-export function TargetPriceField({ value, active, onHelpPress }) {
+export function TargetPriceField({ value, active, onChangeText, onHelpPress }) {
   return (
     <View style={[styles.field, active && styles.fieldActive]}>
       <View style={styles.fieldHeader}>
@@ -22,7 +22,14 @@ export function TargetPriceField({ value, active, onHelpPress }) {
           <Text style={[styles.helpButtonText, active && styles.helpButtonTextActive]}>?</Text>
         </Pressable>
       </View>
-      <Text style={styles.fieldValue}>{value}</Text>
+      <TextInput
+        keyboardType="number-pad"
+        onChangeText={onChangeText}
+        placeholder="150000"
+        placeholderTextColor="#9aa5ad"
+        style={styles.fieldInput}
+        value={value}
+      />
     </View>
   );
 }
@@ -114,14 +121,14 @@ export function TripTypeSelector({ value, onChange }) {
   );
 }
 
-export function PriceInsightCard({ origin, destination }) {
+export function PriceInsightCard({ origin, destination, targetValue = 150000 }) {
   const [selectedIndex, setSelectedIndex] = useState(4);
   const selected = previousYearTrend[selectedIndex];
   const prices = previousYearTrend.map((item) => item.price);
   const average = Math.round(prices.reduce((sum, price) => sum + price, 0) / prices.length);
   const low = Math.min(...prices);
   const high = Math.max(...prices);
-  const target = 150000;
+  const target = targetValue;
   const width = 302;
   const height = 142;
   const padX = 18;
@@ -316,6 +323,59 @@ export function TravelPreferenceCard({
   );
 }
 
+export function PassengerCabinCard({
+  adultCount,
+  setAdultCount,
+  childCount,
+  setChildCount,
+  infantCount,
+  setInfantCount,
+  cabinClass,
+  setCabinClass,
+}) {
+  const cabinOptions = [
+    { label: "이코노미", value: "economy" },
+    { label: "프리미엄", value: "premium_economy" },
+    { label: "비즈니스", value: "business" },
+    { label: "퍼스트", value: "first" },
+  ];
+
+  return (
+    <View style={styles.preferenceCard}>
+      <View style={styles.preferenceHeader}>
+        <Text style={styles.preferenceTitle}>승객과 좌석</Text>
+        <Text style={styles.preferenceSubtitle}>검색 조건과 가격 비교 기준에 함께 저장</Text>
+      </View>
+
+      <Text style={styles.preferenceLabel}>좌석 등급</Text>
+      <View style={styles.chipRow}>
+        {cabinOptions.map((option) => {
+          const active = option.value === cabinClass;
+          return (
+            <Pressable
+              key={option.value}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              onPress={() => setCabinClass(option.value)}
+              style={({ pressed }) => [styles.choiceChip, active && styles.choiceChipActive, pressed && styles.pressed]}
+            >
+              <Text style={[styles.choiceChipText, active && styles.choiceChipTextActive]}>
+                {CABIN_LABELS[option.value] || option.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <View style={styles.passengerCounters}>
+        <BagCounter label="성인" caption="만 12세 이상" value={adultCount} onChange={setAdultCount} min={1} max={9} />
+        <BagCounter label="소아" caption="만 2-11세" value={childCount} onChange={setChildCount} min={0} max={8} />
+        <BagCounter label="유아" caption="만 2세 미만" value={infantCount} onChange={setInfantCount} min={0} max={4} />
+      </View>
+    </View>
+  );
+}
+
 function LayoverEditor({ index, layover, updateLayover }) {
   const airports = index === 0 ? ["TPE", "HKG", "KIX"] : ["HKG", "TPE", "SIN"];
   const terminals = ["T1", "T2", "T3"];
@@ -376,7 +436,7 @@ function OptionGroup({ label, options, value, onChange }) {
   );
 }
 
-function BagCounter({ label, caption, value, onChange, min, max }) {
+export function BagCounter({ label, caption, value, onChange, min, max }) {
   const decrement = () => onChange(Math.max(min, value - 1));
   const increment = () => onChange(Math.min(max, value + 1));
 

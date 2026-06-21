@@ -1,11 +1,66 @@
 import { appConfig } from "../config/appConfig";
 
+export const CABIN_LABELS = {
+  economy: "이코노미",
+  premium_economy: "프리미엄",
+  business: "비즈니스",
+  first: "퍼스트",
+};
+
 export function formatWon(value) {
+  if (typeof value !== "number") return "확인 대기";
   return `₩${value.toLocaleString(appConfig.locale)}`;
 }
 
 export function routeName(origin, destination) {
   return `${origin.city} → ${destination.city}`;
+}
+
+export function parsePriceInput(value) {
+  const digits = String(value || "").replace(/[^\d]/g, "");
+  return digits ? Number(digits) : 0;
+}
+
+export function formatDateRange(from, to) {
+  if (!from || !to) return "";
+
+  const fromDate = new Date(`${from}T00:00:00+09:00`);
+  const toDate = new Date(`${to}T00:00:00+09:00`);
+  const fromLabel = `${fromDate.getMonth() + 1}월 ${fromDate.getDate()}일`;
+  const toLabel = `${toDate.getMonth() + 1}월 ${toDate.getDate()}일`;
+
+  return from === to ? fromLabel : `${fromLabel} - ${toLabel}`;
+}
+
+function isValidIsoDate(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || "");
+  if (!match) return false;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+}
+
+export function getPassengerSummary(alert) {
+  const adults = alert.adultCount || 1;
+  const children = alert.childCount || 0;
+  const infants = alert.infantCount || 0;
+  const parts = [`성인 ${adults}`];
+
+  if (children) parts.push(`소아 ${children}`);
+  if (infants) parts.push(`유아 ${infants}`);
+
+  return parts.join(" · ");
+}
+
+export function getConditionSummary(alert) {
+  const stopLabel = alert.stopCount === 0 ? "직항" : `경유 ${alert.stopCount}회까지`;
+  const cabinLabel = CABIN_LABELS[alert.cabinClass] || "이코노미";
+
+  return `${stopLabel} · ${cabinLabel} · ${getPassengerSummary(alert)}`;
 }
 
 export function createFlightAlert(draft) {
@@ -14,7 +69,8 @@ export function createFlightAlert(draft) {
   const now = new Date().toISOString();
 
   return {
-    id: `${draft.origin.code}-${draft.destination.code}-${Date.now()}`,
+    id: draft.id || `${draft.origin.code}-${draft.destination.code}-${Date.now()}`,
+    persisted: Boolean(draft.persisted),
     from: draft.origin.code,
     to: draft.destination.code,
     city: draft.destination.city,
@@ -24,15 +80,26 @@ export function createFlightAlert(draft) {
     target: formatWon(targetValue),
     targetValue,
     note: "새 알림 조건 저장됨",
-    status: "추적 중",
+    status: draft.status || "추적 중",
+    statusCode: draft.statusCode || "active",
     date: draft.departureLabel,
+    departureDateFrom: draft.departureDateFrom,
+    departureDateTo: draft.departureDateTo,
+    returnDateFrom: draft.returnDateFrom,
+    returnDateTo: draft.returnDateTo,
     direct: draft.stopCount === 0,
     tripType: draft.tripType,
+    cabinClass: draft.cabinClass || "economy",
+    adultCount: draft.adultCount || 1,
+    childCount: draft.childCount || 0,
+    infantCount: draft.infantCount || 0,
     cabinBags: draft.cabinBags,
     checkedBags: draft.checkedBags,
     stopCount: draft.stopCount,
     layovers: draft.layovers.slice(0, draft.stopCount),
-    createdAt: now,
+    priceDropThresholdPercent: draft.priceDropThresholdPercent || 5,
+    createdAt: draft.createdAt || now,
+    updatedAt: now,
   };
 }
 
@@ -45,11 +112,45 @@ export function validateAlertDraft(draft) {
     return "목표 가격을 다시 확인해 주세요.";
   }
 
+  if (!isValidIsoDate(draft.departureDateFrom) || !isValidIsoDate(draft.departureDateTo)) {
+    return "가는 날짜는 YYYY-MM-DD 형식으로 입력해 주세요.";
+  }
+
+  if (draft.departureDateFrom > draft.departureDateTo) {
+    return "가는 날짜 범위를 다시 확인해 주세요.";
+  }
+
+  if (draft.tripType === "round") {
+    if (!isValidIsoDate(draft.returnDateFrom) || !isValidIsoDate(draft.returnDateTo)) {
+      return "오는 날짜는 YYYY-MM-DD 형식으로 입력해 주세요.";
+    }
+
+    if (draft.returnDateFrom > draft.returnDateTo || draft.departureDateFrom > draft.returnDateTo) {
+      return "오는 날짜 범위를 다시 확인해 주세요.";
+    }
+  }
+
+  const passengers = (draft.adultCount || 0) + (draft.childCount || 0) + (draft.infantCount || 0);
+  if ((draft.adultCount || 0) < 1 || passengers > 9) {
+    return "승객은 성인 1명 이상, 전체 9명 이하로 설정해 주세요.";
+  }
+
   return "";
 }
 
 export function alertToNotification(alert, index = 0) {
   const fresh = index === 0 || alert.status === "가격 하락";
+
+  if (alert.statusCode === "paused" || alert.status === "일시정지") {
+    return {
+      id: `${alert.id}-paused`,
+      type: "watch",
+      title: `${alert.city} 알림 일시정지`,
+      subtitle: `${alert.route} · 목표가 ${alert.target}`,
+      fresh: false,
+      target: alert,
+    };
+  }
 
   if (alert.status === "가격 하락") {
     return {

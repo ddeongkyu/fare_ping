@@ -13,7 +13,13 @@ import { DetailScreen } from "./screens/DetailScreen";
 import { HomeScreen } from "./screens/HomeScreen";
 import { NotificationsScreen } from "./screens/NotificationsScreen";
 import { fetchAirportOptions } from "./services/airportRepository";
-import { fetchFareAlerts, saveFareAlert as saveFareAlertRemote } from "./services/fareAlertRepository";
+import {
+  deleteFareAlert as deleteFareAlertRemote,
+  fetchFareAlerts,
+  saveFareAlert as saveFareAlertRemote,
+  updateFareAlert as updateFareAlertRemote,
+  updateFareAlertStatus,
+} from "./services/fareAlertRepository";
 import { ensureUserProfile } from "./services/profileRepository";
 import { getSupabaseStatusLabel, isSupabaseConfigured, supabase } from "./services/supabaseClient";
 import { colors } from "./theme/colors";
@@ -42,6 +48,7 @@ export default function AppRoot() {
   const [authError, setAuthError] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
   const [savingAlert, setSavingAlert] = useState(false);
+  const [editingAlert, setEditingAlert] = useState(null);
   const transition = useRef(new Animated.Value(1)).current;
   const direction = useRef(1);
 
@@ -117,6 +124,8 @@ export default function AppRoot() {
 
   const go = (nextScreen, nextSelected) => {
     if (nextSelected) setSelected(nextSelected);
+    if (nextScreen === "create") setEditingAlert(nextSelected || null);
+    if (nextScreen !== "create") setEditingAlert(null);
     if (nextScreen === screen) return;
     direction.current = (screenOrder[nextScreen] ?? 0) >= (screenOrder[screen] ?? 0) ? 1 : -1;
     transition.setValue(0);
@@ -181,33 +190,96 @@ export default function AppRoot() {
     go("home");
   };
 
+  const replaceAlert = (nextAlert) => {
+    setAlerts((current) => current.map((item) => (item.id === nextAlert.id ? nextAlert : item)));
+    setSelected(nextAlert);
+  };
+
   const saveAlert = async (draft) => {
     const localAlert = createFlightAlert(draft);
+    const isUpdate = Boolean(draft.id);
 
     setSavingAlert(true);
 
     if (!session?.user) {
-      setAlerts((current) => [localAlert, ...current]);
-      setSyncMessage("로그인 전이라 로컬 미리보기로 저장했습니다.");
+      if (isUpdate) {
+        replaceAlert(localAlert);
+      } else {
+        setAlerts((current) => [localAlert, ...current]);
+      }
+      setSyncMessage(`로그인 전이라 로컬 미리보기로 ${isUpdate ? "수정" : "저장"}했습니다.`);
       setSavingAlert(false);
-      go("notifications", localAlert);
+      go(isUpdate ? "detail" : "notifications", localAlert);
       return;
     }
 
     try {
       await ensureUserProfile(session.user);
-      const remoteAlert = await saveFareAlertRemote(session.user.id, draft, airports);
+      const remoteAlert = isUpdate
+        ? await updateFareAlertRemote(session.user.id, draft, airports)
+        : await saveFareAlertRemote(session.user.id, draft, airports);
       const nextAlert = remoteAlert || localAlert;
 
-      setAlerts((current) => [nextAlert, ...current]);
-      setSyncMessage("Supabase에 가격 알림을 저장했습니다.");
-      go("notifications", nextAlert);
+      if (isUpdate) {
+        replaceAlert(nextAlert);
+      } else {
+        setAlerts((current) => [nextAlert, ...current]);
+      }
+      setSyncMessage(`Supabase에 가격 알림을 ${isUpdate ? "수정" : "저장"}했습니다.`);
+      go(isUpdate ? "detail" : "notifications", nextAlert);
     } catch (error) {
-      setAlerts((current) => [localAlert, ...current]);
-      setSyncMessage(`Supabase 저장 실패: ${friendlyError(error)}. 로컬 미리보기로 저장했습니다.`);
-      go("notifications", localAlert);
+      if (isUpdate) {
+        replaceAlert(localAlert);
+      } else {
+        setAlerts((current) => [localAlert, ...current]);
+      }
+      setSyncMessage(`Supabase ${isUpdate ? "수정" : "저장"} 실패: ${friendlyError(error)}. 로컬 미리보기로 반영했습니다.`);
+      go(isUpdate ? "detail" : "notifications", localAlert);
     } finally {
       setSavingAlert(false);
+    }
+  };
+
+  const deleteAlert = async (alert) => {
+    if (!alert) return;
+
+    try {
+      if (session?.user && alert.persisted) {
+        await deleteFareAlertRemote(session.user.id, alert.id);
+      }
+
+      setAlerts((current) => current.filter((item) => item.id !== alert.id));
+      setSelected(null);
+      setSyncMessage("가격 알림을 삭제했습니다.");
+      go("notifications");
+    } catch (error) {
+      setSyncMessage(`삭제 실패: ${friendlyError(error)}`);
+    }
+  };
+
+  const toggleAlertStatus = async (alert) => {
+    if (!alert) return;
+
+    const nextStatus = alert.statusCode === "paused" ? "active" : "paused";
+    const localStatus = nextStatus === "paused" ? "일시정지" : "추적 중";
+    const localAlert = {
+      ...alert,
+      statusCode: nextStatus,
+      status: localStatus,
+      updatedAt: new Date().toISOString(),
+    };
+
+    try {
+      if (session?.user && alert.persisted) {
+        const remoteAlert = await updateFareAlertStatus(session.user.id, alert.id, nextStatus, airports);
+        replaceAlert(remoteAlert);
+      } else {
+        replaceAlert(localAlert);
+      }
+
+      setSyncMessage(nextStatus === "paused" ? "가격 알림을 일시정지했습니다." : "가격 알림 추적을 재개했습니다.");
+    } catch (error) {
+      setSyncMessage(`상태 변경 실패: ${friendlyError(error)}`);
     }
   };
 
@@ -242,8 +314,18 @@ export default function AppRoot() {
 
       <Animated.View style={[styles.screenSlot, styles.animatedScreen, { opacity: transition, transform: [{ translateX }] }]}>
         {screen === "home" && <HomeScreen go={go} alerts={alerts} />}
-        {screen === "create" && <CreateAlertScreen go={go} onSaveAlert={saveAlert} airports={airports} saving={savingAlert} />}
-        {screen === "detail" && <DetailScreen selected={selected} go={go} />}
+        {screen === "create" && (
+          <CreateAlertScreen
+            go={go}
+            onSaveAlert={saveAlert}
+            airports={airports}
+            editingAlert={editingAlert}
+            saving={savingAlert}
+          />
+        )}
+        {screen === "detail" && (
+          <DetailScreen selected={selected} go={go} onDeleteAlert={deleteAlert} onToggleStatus={toggleAlertStatus} />
+        )}
         {screen === "notifications" && <NotificationsScreen go={go} alerts={alerts} />}
         {screen === "auth" && (
           <AuthScreen

@@ -9,6 +9,7 @@ Run these files in order from the Supabase SQL Editor.
 5. `005_price_observations.sql`
 6. `006_notifications_clicks.sql`
 7. `007_rls_policies.sql`
+8. `008_optional_schedule_edge_function.sql` is optional. Use it only after deploying `supabase/functions/check-fares` and replacing the placeholders.
 
 The schema is designed for a portfolio/MVP that can later grow into:
 
@@ -20,4 +21,3 @@ The schema is designed for a portfolio/MVP that can later grow into:
 - affiliate click attribution
 
 Do not store Travelpayouts or Aviasales API tokens in these tables. Keep API tokens in Supabase Edge Function secrets.
-

@@ -11,7 +11,8 @@
     "build:web": "expo export --platform web --output-dir dist",
     "build:pages": "npm run build:web && node scripts/prepare-gh-pages.mjs",
     "check": "expo install --check",
-    "test:aviasales": "node scripts/test-aviasales-api.mjs"
+    "test:aviasales": "node scripts/test-aviasales-api.mjs",
+    "test:supabase": "node scripts/check-supabase-public.mjs"
   },
   "keywords": [
     "expo",

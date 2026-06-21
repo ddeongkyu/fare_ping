@@ -1,16 +1,18 @@
-import { Plane, Share as ShareIcon } from "lucide-react-native";
-import { Linking, Platform, ScrollView, Share as NativeShare, Text, View } from "react-native";
+import { PauseCircle, Pencil, Plane, PlayCircle, Share as ShareIcon, Trash2 } from "lucide-react-native";
+import { Linking, Platform, Pressable, ScrollView, Share as NativeShare, Text, View } from "react-native";
 
 import { IconButton, InfoCard, PrimaryButton, ScreenHeader } from "../components/ui";
 import { initialAlerts } from "../data/flightData";
+import { CABIN_LABELS, getConditionSummary, getPassengerSummary } from "../domain/flightAlerts";
 import { buildAffiliateUrl } from "../services/affiliate";
 import { colors } from "../theme/colors";
 import { styles } from "../theme/styles";
 
-export function DetailScreen({ selected, go }) {
+export function DetailScreen({ selected, go, onDeleteAlert, onToggleStatus }) {
   const deal = selected || initialAlerts[1];
   const [fromCity, toCity] = deal.route.split(" → ");
   const affiliateUrl = buildAffiliateUrl(deal);
+  const isPaused = deal.statusCode === "paused";
   const shareDeal = () => {
     const message = `${deal.route} 항공권 ${deal.price} 발견: ${affiliateUrl}`;
 
@@ -48,9 +50,47 @@ export function DetailScreen({ selected, go }) {
 
       <View style={styles.detailGrid}>
         <InfoCard label="출발" value={deal.date} />
-        <InfoCard label="조건" value={deal.direct ? "직항" : "경유 가능"} />
+        <InfoCard label="조건" value={getConditionSummary(deal)} />
         <InfoCard label="목표가" value={deal.target} />
         <InfoCard label="상태" value={deal.status} />
+        <InfoCard label="수하물" value={`기내 ${deal.cabinBags} · 위탁 ${deal.checkedBags}`} />
+        <InfoCard label="승객" value={getPassengerSummary(deal)} />
+      </View>
+
+      <View style={styles.managementCard}>
+        <Text style={styles.previewTitle}>알림 관리</Text>
+        <Text style={styles.previewBody}>
+          {CABIN_LABELS[deal.cabinClass] || "이코노미"} · {deal.tripType === "round" ? "왕복" : "편도"} · 목표가 {deal.target}
+        </Text>
+        <View style={styles.actionRow}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="알림 수정"
+            onPress={() => go("create", deal)}
+            style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
+          >
+            <Pencil size={16} color={colors.teal} />
+            <Text style={styles.secondaryActionText}>수정</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={isPaused ? "알림 재개" : "알림 일시정지"}
+            onPress={() => onToggleStatus(deal)}
+            style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
+          >
+            {isPaused ? <PlayCircle size={16} color={colors.teal} /> : <PauseCircle size={16} color={colors.teal} />}
+            <Text style={styles.secondaryActionText}>{isPaused ? "재개" : "일시정지"}</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="알림 삭제"
+            onPress={() => onDeleteAlert(deal)}
+            style={({ pressed }) => [styles.dangerActionButton, pressed && styles.pressed]}
+          >
+            <Trash2 size={16} color={colors.coral} />
+            <Text style={styles.dangerActionText}>삭제</Text>
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.timelineCard}>
