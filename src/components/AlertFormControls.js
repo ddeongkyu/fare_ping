@@ -47,7 +47,7 @@ export function AirportSelectField({ label, airport, onPress }) {
   );
 }
 
-export function AirportPicker({ title, selected, onSelect, onClose }) {
+export function AirportPicker({ title, selected, airports = airportOptions, onSelect, onClose }) {
   return (
     <View style={styles.airportPicker}>
       <View style={styles.airportPickerHeader}>
@@ -57,7 +57,7 @@ export function AirportPicker({ title, selected, onSelect, onClose }) {
         </Pressable>
       </View>
       <View style={styles.airportList}>
-        {airportOptions.map((airport) => {
+        {airports.map((airport) => {
           const active = airport.code === selected.code;
           return (
             <Pressable

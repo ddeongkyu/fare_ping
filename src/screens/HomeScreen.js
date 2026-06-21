@@ -22,14 +22,22 @@ export function HomeScreen({ go, alerts }) {
         }
       />
 
-      <View style={styles.dealHero}>
-        <Text style={styles.dealRoute}>{featured.route}</Text>
-        <Text style={styles.dealPrice}>{featured.price}</Text>
-        <Text style={styles.dealNote}>{featured.note}</Text>
-        <PrimaryButton tone="white" onPress={() => go("detail", featured)} icon={<Plane size={18} color={colors.ink} />}>
-          예약 보기
-        </PrimaryButton>
-      </View>
+      {featured ? (
+        <View style={styles.dealHero}>
+          <Text style={styles.dealRoute}>{featured.route}</Text>
+          <Text style={styles.dealPrice}>{featured.price}</Text>
+          <Text style={styles.dealNote}>{featured.note}</Text>
+          <PrimaryButton tone="white" onPress={() => go("detail", featured)} icon={<Plane size={18} color={colors.ink} />}>
+            예약 보기
+          </PrimaryButton>
+        </View>
+      ) : (
+        <View style={styles.emptyStateCard}>
+          <Radar size={24} color={colors.teal} />
+          <Text style={styles.emptyStateTitle}>아직 저장된 알림이 없어요</Text>
+          <Text style={styles.emptyStateBody}>첫 항공권 조건을 만들면 Supabase에 저장하고 여기에서 추적 상태를 보여줍니다.</Text>
+        </View>
+      )}
 
       <View style={styles.chartCard}>
         {chartBars.map((height, index) => (
@@ -44,8 +52,9 @@ export function HomeScreen({ go, alerts }) {
         ))}
       </View>
 
-      <View style={styles.listBlock}>
-        {alerts.slice(1, 4).map((alert) => (
+      {alerts.length > 1 ? (
+        <View style={styles.listBlock}>
+          {alerts.slice(1, 4).map((alert) => (
           <Pressable
             key={alert.id}
             accessibilityRole="button"
@@ -59,8 +68,9 @@ export function HomeScreen({ go, alerts }) {
             </View>
             <Text style={styles.compactPrice}>{alert.price.replace(",000", "k").replace("₩", "₩")}</Text>
           </Pressable>
-        ))}
-      </View>
+          ))}
+        </View>
+      ) : null}
 
       <PrimaryButton onPress={() => go("create")} icon={<Plus size={18} color={colors.white} />}>
         새 가격 알림 만들기

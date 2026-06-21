@@ -21,19 +21,29 @@ export function IconButton({ children, onPress, tone = "default", label }) {
   );
 }
 
-export function PrimaryButton({ children, icon, onPress, tone = "teal" }) {
+export function PrimaryButton({ children, disabled = false, icon, onPress, tone = "teal" }) {
   return (
     <Pressable
       accessibilityRole="button"
-      onPress={onPress}
+      accessibilityState={{ disabled }}
+      onPress={disabled ? undefined : onPress}
       style={({ pressed }) => [
         styles.primaryButton,
         tone === "white" && styles.whiteButton,
-        pressed && styles.pressed,
+        disabled && styles.primaryButtonDisabled,
+        pressed && !disabled && styles.pressed,
       ]}
     >
       {icon}
-      <Text style={[styles.primaryButtonText, tone === "white" && styles.whiteButtonText]}>{children}</Text>
+      <Text
+        style={[
+          styles.primaryButtonText,
+          tone === "white" && styles.whiteButtonText,
+          disabled && styles.primaryButtonTextDisabled,
+        ]}
+      >
+        {children}
+      </Text>
     </Pressable>
   );
 }

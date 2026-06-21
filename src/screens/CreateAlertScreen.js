@@ -1,5 +1,5 @@
 import { ArrowLeftRight, CalendarDays, Send } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 import {
@@ -16,10 +16,11 @@ import { formatWon, routeName, validateAlertDraft } from "../domain/flightAlerts
 import { colors } from "../theme/colors";
 import { styles } from "../theme/styles";
 
-export function CreateAlertScreen({ go, onSaveAlert }) {
+export function CreateAlertScreen({ go, onSaveAlert, airports = airportOptions, saving = false }) {
+  const availableAirports = airports.length ? airports : airportOptions;
   const [showPriceInsight, setShowPriceInsight] = useState(false);
-  const [origin, setOrigin] = useState(airportOptions[0]);
-  const [destination, setDestination] = useState(airportOptions[3]);
+  const [origin, setOrigin] = useState(availableAirports[0]);
+  const [destination, setDestination] = useState(availableAirports[3] || availableAirports[1]);
   const [tripType, setTripType] = useState("round");
   const [airportPicker, setAirportPicker] = useState(null);
   const [stopCount, setStopCount] = useState(0);
@@ -28,6 +29,16 @@ export function CreateAlertScreen({ go, onSaveAlert }) {
   const [checkedBags, setCheckedBags] = useState(0);
   const [formError, setFormError] = useState("");
   const targetValue = 150000;
+
+  useEffect(() => {
+    if (!availableAirports.some((airport) => airport.code === origin.code)) {
+      setOrigin(availableAirports[0]);
+    }
+
+    if (!availableAirports.some((airport) => airport.code === destination.code)) {
+      setDestination(availableAirports[3] || availableAirports[1] || availableAirports[0]);
+    }
+  }, [availableAirports, destination.code, origin.code]);
 
   const updateLayover = (index, key, value) => {
     setLayovers((current) => current.map((item, itemIndex) => (itemIndex === index ? { ...item, [key]: value } : item)));
@@ -86,6 +97,7 @@ export function CreateAlertScreen({ go, onSaveAlert }) {
 
         {airportPicker && (
           <AirportPicker
+            airports={availableAirports}
             title={airportPicker === "origin" ? "출발 공항 선택" : "도착 공항 선택"}
             selected={activeAirport}
             onClose={() => setAirportPicker(null)}
@@ -134,8 +146,8 @@ export function CreateAlertScreen({ go, onSaveAlert }) {
         </Text>
       </View>
 
-      <PrimaryButton onPress={handleSave} icon={<Send size={18} color={colors.white} />}>
-        저장
+      <PrimaryButton disabled={saving} onPress={handleSave} icon={<Send size={18} color={colors.white} />}>
+        {saving ? "저장 중" : "저장"}
       </PrimaryButton>
     </ScrollView>
   );

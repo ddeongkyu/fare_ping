@@ -78,10 +78,12 @@ Do not commit API tokens. This project intentionally keeps API credentials out o
 
 ## Environment
 
-Copy `.env.example` to `.env` if you want to override the public affiliate handoff URL.
+Copy `.env.example` to `.env` when you want to connect the app to Supabase or override the public affiliate handoff URL.
 
 ```bash
 EXPO_PUBLIC_FAREPING_AFFILIATE_URL=https://www.aviasales.com/
+EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_key_here
 ```
 
 For a real product, flight API tokens and scheduled price checks should live in a backend or serverless function, not inside the mobile app.
@@ -97,10 +99,10 @@ Done:
 - In-memory alert creation and notification summary
 - Portfolio-ready public repo cleanup
 - Ordered Supabase SQL schema for auth profiles, fare alerts, fare observations, notifications, and RLS
+- Supabase client setup, email/password auth screen, airport reads, and user-owned alert persistence
 
 Next:
 
-- Supabase auth and user alert persistence
 - Scheduled fare checking with server-side API token storage
 - Push/email notification pipeline
 - Real route/date form inputs

@@ -35,6 +35,10 @@ jobs:
         run: npm ci
 
       - name: Build web demo
+        env:
+          EXPO_PUBLIC_FAREPING_AFFILIATE_URL: ${{ vars.EXPO_PUBLIC_FAREPING_AFFILIATE_URL }}
+          EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
         run: npm run build:pages
 
       - name: Configure GitHub Pages
@@ -48,4 +52,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-

@@ -84,10 +84,13 @@ export function alertToNotification(alert, index = 0) {
 }
 
 export function getNotificationSummary(notifications) {
+  if (!notifications.length) {
+    return "저장된 가격 알림이 아직 없어요. 만들기 화면에서 첫 여행 조건을 저장해 보세요.";
+  }
+
   const drops = notifications.filter((item) => item.type === "drop").length;
   const targets = notifications.filter((item) => item.type === "target").length;
   const watching = notifications.filter((item) => item.type === "watch").length;
 
   return `현재 가격 하락 ${drops}건, 목표가 도달 ${targets}건, 추적 중 ${watching}건을 확인하고 있어요.`;
 }
-

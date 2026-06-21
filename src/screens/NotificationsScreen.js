@@ -8,6 +8,7 @@ import { styles } from "../theme/styles";
 
 export function NotificationsScreen({ go, alerts }) {
   const notifications = alerts.map(alertToNotification);
+  const freshCount = notifications.filter((item) => item.fresh).length;
   const renderNotificationIcon = (item) => {
     if (item.type === "drop") return <TrendingDown size={18} color={colors.coral} />;
     if (item.type === "target") return <BellRing size={18} color={colors.teal} />;
@@ -21,7 +22,7 @@ export function NotificationsScreen({ go, alerts }) {
         title="알림함"
         right={
           <HeaderStatusPill icon={<BellRing size={16} color={colors.coral} />}>
-            새 알림 1
+            {freshCount ? `새 알림 ${freshCount}` : "알림 없음"}
           </HeaderStatusPill>
         }
       />
