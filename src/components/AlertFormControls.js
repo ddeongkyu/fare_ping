@@ -1,4 +1,4 @@
-import { Briefcase, MapPin, Plane, X } from "lucide-react-native";
+import { Briefcase, MapPin, Plane, Search, X } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import Svg, { Circle, Line, Polyline, Rect } from "react-native-svg";
@@ -25,7 +25,7 @@ export function TargetPriceField({ value, active, onChangeText, onHelpPress }) {
       <TextInput
         keyboardType="number-pad"
         onChangeText={onChangeText}
-        placeholder="150000"
+        placeholder="150,000"
         placeholderTextColor="#9aa5ad"
         style={styles.fieldInput}
         value={value}
@@ -55,6 +55,15 @@ export function AirportSelectField({ label, airport, onPress }) {
 }
 
 export function AirportPicker({ title, selected, airports = airportOptions, onSelect, onClose }) {
+  const [query, setQuery] = useState("");
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredAirports = normalizedQuery
+    ? airports.filter((airport) => {
+        const haystack = `${airport.code} ${airport.name} ${airport.city} ${airport.country}`.toLowerCase();
+        return haystack.includes(normalizedQuery);
+      })
+    : airports;
+
   return (
     <View style={styles.airportPicker}>
       <View style={styles.airportPickerHeader}>
@@ -63,8 +72,20 @@ export function AirportPicker({ title, selected, airports = airportOptions, onSe
           <X size={16} color={colors.ink} />
         </Pressable>
       </View>
+      <View style={styles.searchInputShell}>
+        <Search size={15} color={colors.teal} />
+        <TextInput
+          autoCapitalize="characters"
+          autoCorrect={false}
+          onChangeText={setQuery}
+          placeholder="공항명, 도시, 코드 검색"
+          placeholderTextColor="#9aa5ad"
+          style={styles.searchInput}
+          value={query}
+        />
+      </View>
       <View style={styles.airportList}>
-        {airports.map((airport) => {
+        {filteredAirports.map((airport) => {
           const active = airport.code === selected.code;
           return (
             <Pressable
@@ -84,6 +105,98 @@ export function AirportPicker({ title, selected, airports = airportOptions, onSe
                   {airport.city} · {airport.country}
                 </Text>
               </View>
+            </Pressable>
+          );
+        })}
+        {!filteredAirports.length ? (
+          <View style={styles.emptySearchBox}>
+            <Text style={styles.emptySearchText}>검색 결과가 없어요.</Text>
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+function monthDays(baseDate) {
+  const [year, month] = baseDate.split("-").map(Number);
+  const lastDay = new Date(year, month, 0).getDate();
+
+  return Array.from({ length: lastDay }, (_, index) => {
+    const day = index + 1;
+    return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  });
+}
+
+function dayLabel(value) {
+  return String(Number(value.slice(-2)));
+}
+
+export function DateRangeSelector({ title, from, to, onChangeFrom, onChangeTo }) {
+  const [activeField, setActiveField] = useState("from");
+  const baseDate = from || to || "2026-09-01";
+  const days = monthDays(baseDate);
+  const rangeStart = from || baseDate;
+  const rangeEnd = to || rangeStart;
+
+  const selectDay = (day) => {
+    if (activeField === "from") {
+      onChangeFrom(day);
+      if (day > rangeEnd) onChangeTo(day);
+      setActiveField("to");
+      return;
+    }
+
+    onChangeTo(day);
+    if (day < rangeStart) onChangeFrom(day);
+    setActiveField("from");
+  };
+
+  return (
+    <View style={styles.calendarCard}>
+      <View style={styles.calendarHeader}>
+        <View>
+          <Text style={styles.preferenceLabel}>{title}</Text>
+          <Text style={styles.calendarMonth}>{baseDate.slice(0, 7)}</Text>
+        </View>
+        <View style={styles.calendarModeRow}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: activeField === "from" }}
+            onPress={() => setActiveField("from")}
+            style={({ pressed }) => [styles.calendarMode, activeField === "from" && styles.calendarModeActive, pressed && styles.pressed]}
+          >
+            <Text style={[styles.calendarModeText, activeField === "from" && styles.calendarModeTextActive]}>시작</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: activeField === "to" }}
+            onPress={() => setActiveField("to")}
+            style={({ pressed }) => [styles.calendarMode, activeField === "to" && styles.calendarModeActive, pressed && styles.pressed]}
+          >
+            <Text style={[styles.calendarModeText, activeField === "to" && styles.calendarModeTextActive]}>종료</Text>
+          </Pressable>
+        </View>
+      </View>
+      <View style={styles.calendarGrid}>
+        {days.map((day) => {
+          const selected = day === rangeStart || day === rangeEnd;
+          const inRange = day > rangeStart && day < rangeEnd;
+          return (
+            <Pressable
+              key={day}
+              accessibilityRole="button"
+              accessibilityLabel={`${title} ${day} 선택`}
+              accessibilityState={{ selected }}
+              onPress={() => selectDay(day)}
+              style={({ pressed }) => [
+                styles.calendarDay,
+                inRange && styles.calendarDayInRange,
+                selected && styles.calendarDaySelected,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Text style={[styles.calendarDayText, selected && styles.calendarDayTextSelected]}>{dayLabel(day)}</Text>
             </Pressable>
           );
         })}

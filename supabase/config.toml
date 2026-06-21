@@ -1,0 +1,4 @@
+project_id = "fareping"
+
+[functions.check-fares]
+verify_jwt = false

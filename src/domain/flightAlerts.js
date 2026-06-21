@@ -21,6 +21,11 @@ export function parsePriceInput(value) {
   return digits ? Number(digits) : 0;
 }
 
+export function formatPriceInput(value) {
+  const parsed = parsePriceInput(value);
+  return parsed ? parsed.toLocaleString(appConfig.locale) : "";
+}
+
 export function formatDateRange(from, to) {
   if (!from || !to) return "";
 

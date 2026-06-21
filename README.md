@@ -50,6 +50,7 @@ This repository focuses on the product and frontend foundation:
 ├── supabase/functions/check-fares  # Edge Function starter for scheduled fare checks
 ├── scripts/test-aviasales-api.mjs  # Local API validation helper
 ├── scripts/check-supabase-public.mjs # Public Supabase/RLS smoke test
+├── docs                           # QA and Edge Function deployment notes
 ├── supabase/sql                    # Ordered Supabase schema setup files
 ├── assets                          # Portfolio screenshots and visual assets
 └── mockups.html                    # Static web/app mockup board
@@ -75,6 +76,8 @@ npm run test:aviasales
 ```
 
 `test:supabase` checks that the public Supabase key can read reference airports and cannot expose another user's fare alerts.
+
+Manual QA checklist: [docs/qa-checklist.md](./docs/qa-checklist.md)
 
 `test:aviasales` requires a local API token:
 
@@ -107,6 +110,8 @@ npx supabase functions deploy check-fares
 
 Never expose the service role key in the Expo app.
 
+Full Edge Function deployment notes: [docs/edge-function-deploy.md](./docs/edge-function-deploy.md)
+
 ## Architecture
 
 ```mermaid
@@ -132,10 +137,12 @@ Done:
 - Home, create alert, notification inbox, and detail screens
 - Real alert form inputs for route, date ranges, price, passengers, cabin, baggage, and stopovers
 - Alert create, update, pause/resume, and delete flows
+- Airport search, calendar-style date selection, target price formatting, and delete confirmation
 - Portfolio-ready public repo cleanup
 - Ordered Supabase SQL schema for auth profiles, fare alerts, fare observations, notifications, and RLS
 - Supabase client setup, email/password auth screen, airport reads, and user-owned alert persistence
 - Public Supabase/RLS smoke test script
+- DB-backed notification inbox integration and affiliate click tracking
 - Aviasales scheduled check Edge Function starter and optional cron SQL template
 
 Next:

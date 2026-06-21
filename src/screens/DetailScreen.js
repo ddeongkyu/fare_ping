@@ -1,5 +1,6 @@
 import { PauseCircle, Pencil, Plane, PlayCircle, Share as ShareIcon, Trash2 } from "lucide-react-native";
-import { Linking, Platform, Pressable, ScrollView, Share as NativeShare, Text, View } from "react-native";
+import { Modal, Platform, Pressable, ScrollView, Share as NativeShare, Text, View } from "react-native";
+import { useState } from "react";
 
 import { IconButton, InfoCard, PrimaryButton, ScreenHeader } from "../components/ui";
 import { initialAlerts } from "../data/flightData";
@@ -8,8 +9,9 @@ import { buildAffiliateUrl } from "../services/affiliate";
 import { colors } from "../theme/colors";
 import { styles } from "../theme/styles";
 
-export function DetailScreen({ selected, go, onDeleteAlert, onToggleStatus }) {
+export function DetailScreen({ selected, go, onDeleteAlert, onOpenAffiliate, onToggleStatus }) {
   const deal = selected || initialAlerts[1];
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [fromCity, toCity] = deal.route.split(" → ");
   const affiliateUrl = buildAffiliateUrl(deal);
   const isPaused = deal.statusCode === "paused";
@@ -84,7 +86,7 @@ export function DetailScreen({ selected, go, onDeleteAlert, onToggleStatus }) {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="알림 삭제"
-            onPress={() => onDeleteAlert(deal)}
+            onPress={() => setDeleteConfirmVisible(true)}
             style={({ pressed }) => [styles.dangerActionButton, pressed && styles.pressed]}
           >
             <Trash2 size={16} color={colors.coral} />
@@ -105,9 +107,39 @@ export function DetailScreen({ selected, go, onDeleteAlert, onToggleStatus }) {
         </View>
       </View>
 
-      <PrimaryButton onPress={() => Linking.openURL(affiliateUrl)} icon={<Plane size={18} color={colors.white} />}>
+      <PrimaryButton onPress={() => onOpenAffiliate(deal, affiliateUrl)} icon={<Plane size={18} color={colors.white} />}>
         Aviasales에서 보기
       </PrimaryButton>
+
+      <Modal animationType="fade" transparent visible={deleteConfirmVisible} onRequestClose={() => setDeleteConfirmVisible(false)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.confirmModal}>
+            <Text style={styles.confirmTitle}>알림을 삭제할까요?</Text>
+            <Text style={styles.confirmBody}>{deal.route} 가격 알림과 연결된 조건을 목록에서 제거합니다.</Text>
+            <View style={styles.confirmActions}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="삭제 취소"
+                onPress={() => setDeleteConfirmVisible(false)}
+                style={({ pressed }) => [styles.confirmCancelButton, pressed && styles.pressed]}
+              >
+                <Text style={styles.confirmCancelText}>취소</Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="삭제 확인"
+                onPress={() => {
+                  setDeleteConfirmVisible(false);
+                  onDeleteAlert(deal);
+                }}
+                style={({ pressed }) => [styles.confirmDeleteButton, pressed && styles.pressed]}
+              >
+                <Text style={styles.confirmDeleteText}>삭제</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }

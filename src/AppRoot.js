@@ -1,6 +1,6 @@
 import { LogIn, LogOut, Radar } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
-import { Animated, Easing, Platform, Pressable, Text, View } from "react-native";
+import { Animated, Easing, Linking, Platform, Pressable, Text, View } from "react-native";
 
 import { AppShell } from "./components/AppShell";
 import { appConfig } from "./config/appConfig";
@@ -12,6 +12,7 @@ import { CreateAlertScreen } from "./screens/CreateAlertScreen";
 import { DetailScreen } from "./screens/DetailScreen";
 import { HomeScreen } from "./screens/HomeScreen";
 import { NotificationsScreen } from "./screens/NotificationsScreen";
+import { recordAffiliateClick } from "./services/affiliateClickRepository";
 import { fetchAirportOptions } from "./services/airportRepository";
 import {
   deleteFareAlert as deleteFareAlertRemote,
@@ -20,6 +21,11 @@ import {
   updateFareAlert as updateFareAlertRemote,
   updateFareAlertStatus,
 } from "./services/fareAlertRepository";
+import {
+  dismissNotification,
+  fetchAlertNotifications,
+  markNotificationRead,
+} from "./services/notificationRepository";
 import { ensureUserProfile } from "./services/profileRepository";
 import { getSupabaseStatusLabel, isSupabaseConfigured, supabase } from "./services/supabaseClient";
 import { colors } from "./theme/colors";
@@ -34,13 +40,23 @@ const screenOrder = {
 };
 
 function friendlyError(error) {
-  return error?.message || "알 수 없는 오류";
+  const message = error?.message || "알 수 없는 오류";
+
+  if (message.includes("Invalid login credentials")) return "이메일 또는 비밀번호가 맞지 않습니다.";
+  if (message.includes("Email not confirmed")) return "이메일 확인이 아직 완료되지 않았습니다.";
+  if (message.includes("User already registered")) return "이미 가입된 이메일입니다.";
+  if (message.includes("Password should be")) return "비밀번호 조건을 다시 확인해 주세요.";
+  if (message.includes("JWT")) return "로그인 세션이 만료되었습니다. 다시 로그인해 주세요.";
+  if (message.includes("row-level security")) return "권한 정책 때문에 요청이 거절되었습니다.";
+
+  return message;
 }
 
 export default function AppRoot() {
   const [screen, setScreen] = useState("home");
   const [airports, setAirports] = useState(airportOptions);
   const [alerts, setAlerts] = useState(initialAlerts);
+  const [notifications, setNotifications] = useState([]);
   const [selected, setSelected] = useState(initialAlerts[1]);
   const [session, setSession] = useState(null);
   const [syncMessage, setSyncMessage] = useState("");
@@ -94,6 +110,7 @@ export default function AppRoot() {
   useEffect(() => {
     if (!session?.user) {
       setAlerts(initialAlerts);
+      setNotifications([]);
       setSelected(initialAlerts[1]);
       return undefined;
     }
@@ -104,12 +121,14 @@ export default function AppRoot() {
       try {
         await ensureUserProfile(session.user);
         const remoteAlerts = await fetchFareAlerts(session.user.id, airports);
+        const remoteNotifications = await fetchAlertNotifications(session.user.id, remoteAlerts);
 
         if (!active) return;
 
         setAlerts(remoteAlerts);
+        setNotifications(remoteNotifications);
         setSelected(remoteAlerts[0] || null);
-        setSyncMessage(remoteAlerts.length ? "Supabase 알림 동기화 완료" : "저장된 알림이 아직 없어요.");
+        setSyncMessage(remoteAlerts.length ? "Supabase 데이터 동기화 완료" : "저장된 알림이 아직 없어요.");
       } catch (error) {
         if (active) setSyncMessage(`Supabase 동기화 실패: ${friendlyError(error)}`);
       }
@@ -186,6 +205,7 @@ export default function AppRoot() {
 
     await supabase.auth.signOut();
     setSession(null);
+    setNotifications([]);
     setSyncMessage("로그아웃했습니다. 지금은 데모 알림을 보여줍니다.");
     go("home");
   };
@@ -249,6 +269,7 @@ export default function AppRoot() {
       }
 
       setAlerts((current) => current.filter((item) => item.id !== alert.id));
+      setNotifications((current) => current.filter((item) => item.target?.id !== alert.id));
       setSelected(null);
       setSyncMessage("가격 알림을 삭제했습니다.");
       go("notifications");
@@ -281,6 +302,54 @@ export default function AppRoot() {
     } catch (error) {
       setSyncMessage(`상태 변경 실패: ${friendlyError(error)}`);
     }
+  };
+
+  const openNotification = async (notification) => {
+    if (!notification) return;
+
+    if (session?.user && notification.persisted) {
+      try {
+        await markNotificationRead(session.user.id, notification.id);
+        setNotifications((current) =>
+          current.map((item) => (item.id === notification.id ? { ...item, fresh: false, status: "read" } : item)),
+        );
+      } catch (error) {
+        setSyncMessage(`알림 읽음 처리 실패: ${friendlyError(error)}`);
+      }
+    }
+
+    if (notification.target) {
+      go("detail", notification.target);
+    }
+  };
+
+  const dismissNotificationItem = async (notification) => {
+    if (!notification) return;
+
+    if (session?.user && notification.persisted) {
+      try {
+        await dismissNotification(session.user.id, notification.id);
+      } catch (error) {
+        setSyncMessage(`알림 삭제 실패: ${friendlyError(error)}`);
+        return;
+      }
+    }
+
+    setNotifications((current) => current.filter((item) => item.id !== notification.id));
+    setSyncMessage("알림을 정리했습니다.");
+  };
+
+  const openAffiliate = async (alert, targetUrl) => {
+    if (session?.user) {
+      try {
+        await recordAffiliateClick({ alert, targetUrl, userId: session.user.id });
+        setSyncMessage("제휴 클릭을 기록했습니다.");
+      } catch (error) {
+        setSyncMessage(`제휴 클릭 기록 실패: ${friendlyError(error)}`);
+      }
+    }
+
+    Linking.openURL(targetUrl);
   };
 
   const translateX = transition.interpolate({
@@ -324,9 +393,23 @@ export default function AppRoot() {
           />
         )}
         {screen === "detail" && (
-          <DetailScreen selected={selected} go={go} onDeleteAlert={deleteAlert} onToggleStatus={toggleAlertStatus} />
+          <DetailScreen
+            selected={selected}
+            go={go}
+            onDeleteAlert={deleteAlert}
+            onOpenAffiliate={openAffiliate}
+            onToggleStatus={toggleAlertStatus}
+          />
         )}
-        {screen === "notifications" && <NotificationsScreen go={go} alerts={alerts} />}
+        {screen === "notifications" && (
+          <NotificationsScreen
+            go={go}
+            alerts={alerts}
+            remoteNotifications={session?.user ? notifications : null}
+            onDismissNotification={dismissNotificationItem}
+            onOpenNotification={openNotification}
+          />
+        )}
         {screen === "auth" && (
           <AuthScreen
             busy={authBusy}

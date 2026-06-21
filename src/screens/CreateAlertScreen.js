@@ -1,10 +1,11 @@
-import { ArrowLeftRight, CalendarDays, Send } from "lucide-react-native";
+import { ArrowLeftRight, Send } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 
 import {
   AirportPicker,
   AirportSelectField,
+  DateRangeSelector,
   PassengerCabinCard,
   PriceInsightCard,
   TargetPriceField,
@@ -13,32 +14,19 @@ import {
 } from "../components/AlertFormControls";
 import { PrimaryButton, ScreenHeader } from "../components/ui";
 import { airportOptions, defaultLayovers } from "../data/flightData";
-import { formatDateRange, formatWon, parsePriceInput, routeName, validateAlertDraft } from "../domain/flightAlerts";
+import {
+  formatDateRange,
+  formatPriceInput,
+  formatWon,
+  parsePriceInput,
+  routeName,
+  validateAlertDraft,
+} from "../domain/flightAlerts";
 import { colors } from "../theme/colors";
 import { styles } from "../theme/styles";
 
 function findAirport(airports, code, fallbackIndex) {
   return airports.find((airport) => airport.code === code) || airports[fallbackIndex] || airports[0];
-}
-
-function DateInputField({ label, value, onChangeText }) {
-  return (
-    <View style={[styles.field, styles.dateInputField]}>
-      <View style={styles.fieldHeader}>
-        <Text style={styles.fieldLabel}>{label}</Text>
-        <CalendarDays size={16} color={colors.teal} />
-      </View>
-      <TextInput
-        autoCapitalize="none"
-        keyboardType="numbers-and-punctuation"
-        onChangeText={onChangeText}
-        placeholder="2026-09-01"
-        placeholderTextColor="#9aa5ad"
-        style={styles.fieldInput}
-        value={value}
-      />
-    </View>
-  );
 }
 
 export function CreateAlertScreen({ go, onSaveAlert, airports = airportOptions, editingAlert, saving = false }) {
@@ -53,7 +41,7 @@ export function CreateAlertScreen({ go, onSaveAlert, airports = airportOptions, 
   const [departureDateTo, setDepartureDateTo] = useState(editingAlert?.departureDateTo || "2026-09-30");
   const [returnDateFrom, setReturnDateFrom] = useState(editingAlert?.returnDateFrom || "2026-09-20");
   const [returnDateTo, setReturnDateTo] = useState(editingAlert?.returnDateTo || "2026-09-30");
-  const [targetPriceText, setTargetPriceText] = useState(String(editingAlert?.targetValue || 150000));
+  const [targetPriceText, setTargetPriceText] = useState(formatPriceInput(editingAlert?.targetValue || 150000));
   const [stopCount, setStopCount] = useState(editingAlert?.stopCount || 0);
   const [layovers, setLayovers] = useState(editingAlert?.layovers?.length ? editingAlert.layovers : defaultLayovers);
   const [cabinBags, setCabinBags] = useState(editingAlert?.cabinBags ?? 1);
@@ -83,6 +71,9 @@ export function CreateAlertScreen({ go, onSaveAlert, airports = airportOptions, 
   const stopSummary = stopCount === 0 ? "직항만" : `경유 ${stopCount}회까지`;
   const tripSummary = tripType === "round" ? "왕복" : "편도";
   const activeAirport = airportPicker === "origin" ? origin : destination;
+  const updateTargetPrice = (value) => {
+    setTargetPriceText(formatPriceInput(value));
+  };
   const swapAirports = () => {
     setOrigin(destination);
     setDestination(origin);
@@ -157,20 +148,26 @@ export function CreateAlertScreen({ go, onSaveAlert, airports = airportOptions, 
         )}
 
         <TripTypeSelector value={tripType} onChange={setTripType} />
-        <View style={styles.dateGrid}>
-          <DateInputField label="출발 시작일" value={departureDateFrom} onChangeText={setDepartureDateFrom} />
-          <DateInputField label="출발 종료일" value={departureDateTo} onChangeText={setDepartureDateTo} />
-        </View>
+        <DateRangeSelector
+          title={tripType === "round" ? "가는 날짜" : "여행 날짜"}
+          from={departureDateFrom}
+          to={departureDateTo}
+          onChangeFrom={setDepartureDateFrom}
+          onChangeTo={setDepartureDateTo}
+        />
         {tripType === "round" && (
-          <View style={styles.dateGrid}>
-            <DateInputField label="귀국 시작일" value={returnDateFrom} onChangeText={setReturnDateFrom} />
-            <DateInputField label="귀국 종료일" value={returnDateTo} onChangeText={setReturnDateTo} />
-          </View>
+          <DateRangeSelector
+            title="오는 날짜"
+            from={returnDateFrom}
+            to={returnDateTo}
+            onChangeFrom={setReturnDateFrom}
+            onChangeTo={setReturnDateTo}
+          />
         )}
         <TargetPriceField
           value={targetPriceText}
           active={showPriceInsight}
-          onChangeText={setTargetPriceText}
+          onChangeText={updateTargetPrice}
           onHelpPress={() => setShowPriceInsight((current) => !current)}
         />
       </View>

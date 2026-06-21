@@ -1,4 +1,4 @@
-import { BellRing, Clock3, TrendingDown } from "lucide-react-native";
+import { BellRing, Clock3, TrendingDown, X } from "lucide-react-native";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 import { HeaderStatusPill, ScreenHeader } from "../components/ui";
@@ -6,8 +6,8 @@ import { alertToNotification, getNotificationSummary } from "../domain/flightAle
 import { colors } from "../theme/colors";
 import { styles } from "../theme/styles";
 
-export function NotificationsScreen({ go, alerts }) {
-  const notifications = alerts.map(alertToNotification);
+export function NotificationsScreen({ alerts, remoteNotifications, onDismissNotification, onOpenNotification }) {
+  const notifications = remoteNotifications || alerts.map(alertToNotification);
   const freshCount = notifications.filter((item) => item.fresh).length;
   const renderNotificationIcon = (item) => {
     if (item.type === "drop") return <TrendingDown size={18} color={colors.coral} />;
@@ -29,25 +29,38 @@ export function NotificationsScreen({ go, alerts }) {
 
       <View style={styles.notificationList}>
         {notifications.map((item) => (
-          <Pressable
+          <View
             key={item.id}
-            accessibilityRole="button"
-            accessibilityLabel={`${item.title} 상세 보기`}
-            onPress={() => go("detail", item.target)}
-            style={({ pressed }) => [
+            style={[
               styles.notificationItem,
               item.fresh && styles.notificationFresh,
-              pressed && styles.pressed,
             ]}
           >
-            <View style={[styles.notificationIcon, item.fresh && styles.notificationIconFresh]}>
-              {renderNotificationIcon(item)}
-            </View>
-            <View style={styles.notificationCopy}>
-              <Text style={styles.notificationTitle}>{item.title}</Text>
-              <Text style={styles.notificationSubtitle}>{item.subtitle}</Text>
-            </View>
-          </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`${item.title} 상세 보기`}
+              onPress={() => onOpenNotification(item)}
+              style={({ pressed }) => [styles.notificationMain, pressed && styles.pressed]}
+            >
+              <View style={[styles.notificationIcon, item.fresh && styles.notificationIconFresh]}>
+                {renderNotificationIcon(item)}
+              </View>
+              <View style={styles.notificationCopy}>
+                <Text style={styles.notificationTitle}>{item.title}</Text>
+                <Text style={styles.notificationSubtitle}>{item.subtitle}</Text>
+              </View>
+            </Pressable>
+            {item.persisted ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`${item.title} 알림 정리`}
+                onPress={() => onDismissNotification(item)}
+                style={({ pressed }) => [styles.notificationDismissButton, pressed && styles.pressed]}
+              >
+                <X size={15} color={colors.muted} />
+              </Pressable>
+            ) : null}
+          </View>
         ))}
       </View>
 
