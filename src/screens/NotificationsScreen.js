@@ -1,4 +1,4 @@
-import { BellRing, Clock3, TrendingDown, X } from "lucide-react-native";
+import { BellRing, Clock3, Pencil, TrendingDown, X } from "lucide-react-native";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 import { HeaderStatusPill, ScreenHeader } from "../components/ui";
@@ -6,7 +6,7 @@ import { alertToNotification, getNotificationSummary } from "../domain/flightAle
 import { colors } from "../theme/colors";
 import { styles } from "../theme/styles";
 
-export function NotificationsScreen({ alerts, remoteNotifications, onDismissNotification, onOpenNotification }) {
+export function NotificationsScreen({ alerts, remoteNotifications, onDismissNotification, onEditAlert, onOpenNotification }) {
   const notifications = remoteNotifications || alerts.map(alertToNotification);
   const freshCount = notifications.filter((item) => item.fresh).length;
   const renderNotificationIcon = (item) => {
@@ -50,16 +50,28 @@ export function NotificationsScreen({ alerts, remoteNotifications, onDismissNoti
                 <Text style={styles.notificationSubtitle}>{item.subtitle}</Text>
               </View>
             </Pressable>
-            {item.persisted ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`${item.title} 알림 정리`}
-                onPress={() => onDismissNotification(item)}
-                style={({ pressed }) => [styles.notificationDismissButton, pressed && styles.pressed]}
-              >
-                <X size={15} color={colors.muted} />
-              </Pressable>
-            ) : null}
+            <View style={styles.notificationActionStack}>
+              {item.target ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${item.title} 알림 수정`}
+                  onPress={() => onEditAlert(item.target)}
+                  style={({ pressed }) => [styles.notificationEditButton, pressed && styles.pressed]}
+                >
+                  <Pencil size={15} color={colors.teal} />
+                </Pressable>
+              ) : null}
+              {item.persisted ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${item.title} 알림 정리`}
+                  onPress={() => onDismissNotification(item)}
+                  style={({ pressed }) => [styles.notificationDismissButton, pressed && styles.pressed]}
+                >
+                  <X size={15} color={colors.muted} />
+                </Pressable>
+              ) : null}
+            </View>
           </View>
         ))}
       </View>

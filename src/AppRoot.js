@@ -382,7 +382,14 @@ export default function AppRoot() {
       </View>
 
       <Animated.View style={[styles.screenSlot, styles.animatedScreen, { opacity: transition, transform: [{ translateX }] }]}>
-        {screen === "home" && <HomeScreen go={go} alerts={alerts} />}
+        {screen === "home" && (
+          <HomeScreen
+            go={go}
+            alerts={alerts}
+            onEditAlert={(alert) => go("create", alert)}
+            onToggleStatus={toggleAlertStatus}
+          />
+        )}
         {screen === "create" && (
           <CreateAlertScreen
             go={go}
@@ -405,6 +412,7 @@ export default function AppRoot() {
           <NotificationsScreen
             go={go}
             alerts={alerts}
+            onEditAlert={(alert) => go("create", alert)}
             remoteNotifications={session?.user ? notifications : null}
             onDismissNotification={dismissNotificationItem}
             onOpenNotification={openNotification}

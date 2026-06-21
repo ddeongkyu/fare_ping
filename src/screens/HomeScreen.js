@@ -1,4 +1,4 @@
-import { Plane, Plus, Radar } from "lucide-react-native";
+import { PauseCircle, Pencil, Plane, PlayCircle, Plus, Radar } from "lucide-react-native";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 import { HeaderStatusPill, PrimaryButton, ScreenHeader } from "../components/ui";
@@ -7,8 +7,11 @@ import { chartBars } from "../data/flightData";
 import { colors } from "../theme/colors";
 import { styles } from "../theme/styles";
 
-export function HomeScreen({ go, alerts }) {
+export function HomeScreen({ go, alerts, onEditAlert, onToggleStatus }) {
   const featured = alerts[0];
+  const renderStatusIcon = (alert, color = colors.teal) =>
+    alert.statusCode === "paused" ? <PlayCircle size={15} color={color} /> : <PauseCircle size={15} color={color} />;
+  const renderStatusLabel = (alert) => (alert.statusCode === "paused" ? "재개" : "정지");
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.screenContent}>
@@ -30,6 +33,26 @@ export function HomeScreen({ go, alerts }) {
           <PrimaryButton tone="white" onPress={() => go("detail", featured)} icon={<Plane size={18} color={colors.ink} />}>
             예약 보기
           </PrimaryButton>
+          <View style={styles.heroActionRow}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`${featured.route} 알림 수정`}
+              onPress={() => onEditAlert(featured)}
+              style={({ pressed }) => [styles.heroActionButton, pressed && styles.pressed]}
+            >
+              <Pencil size={15} color={colors.white} />
+              <Text style={styles.heroActionText}>수정</Text>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`${featured.route} 알림 ${renderStatusLabel(featured)}`}
+              onPress={() => onToggleStatus(featured)}
+              style={({ pressed }) => [styles.heroActionButton, pressed && styles.pressed]}
+            >
+              {renderStatusIcon(featured, colors.white)}
+              <Text style={styles.heroActionText}>{renderStatusLabel(featured)}</Text>
+            </Pressable>
+          </View>
         </View>
       ) : (
         <View style={styles.emptyStateCard}>
@@ -55,19 +78,38 @@ export function HomeScreen({ go, alerts }) {
       {alerts.length > 1 ? (
         <View style={styles.listBlock}>
           {alerts.slice(1, 4).map((alert) => (
-          <Pressable
-            key={alert.id}
-            accessibilityRole="button"
-            accessibilityLabel={`${alert.route} 상세 보기`}
-            onPress={() => go("detail", alert)}
-            style={({ pressed }) => [styles.compactDeal, pressed && styles.pressed]}
-          >
-            <View>
-              <Text style={styles.airportCode}>{alert.city}</Text>
-              <Text style={styles.compactRoute}>{alert.route}</Text>
+            <View key={alert.id} style={styles.compactDeal}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`${alert.route} 상세 보기`}
+                onPress={() => go("detail", alert)}
+                style={({ pressed }) => [styles.compactDealMain, pressed && styles.pressed]}
+              >
+                <View style={styles.compactDealCopy}>
+                  <Text style={styles.airportCode}>{alert.city}</Text>
+                  <Text style={styles.compactRoute}>{alert.route}</Text>
+                </View>
+                <Text style={styles.compactPrice}>{alert.price.replace(",000", "k").replace("₩", "₩")}</Text>
+              </Pressable>
+              <View style={styles.compactDealActions}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${alert.route} 알림 수정`}
+                  onPress={() => onEditAlert(alert)}
+                  style={({ pressed }) => [styles.compactActionButton, pressed && styles.pressed]}
+                >
+                  <Pencil size={14} color={colors.teal} />
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${alert.route} 알림 ${renderStatusLabel(alert)}`}
+                  onPress={() => onToggleStatus(alert)}
+                  style={({ pressed }) => [styles.compactActionButton, pressed && styles.pressed]}
+                >
+                  {renderStatusIcon(alert)}
+                </Pressable>
+              </View>
             </View>
-            <Text style={styles.compactPrice}>{alert.price.replace(",000", "k").replace("₩", "₩")}</Text>
-          </Pressable>
           ))}
         </View>
       ) : null}

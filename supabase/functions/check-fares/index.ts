@@ -59,6 +59,32 @@ function getPrice(offer: ProviderOffer) {
   return offer.value || offer.price || 0;
 }
 
+async function hasMatchingTargetNotification(alertId: string, observationId: string, price: number) {
+  const { data: observations, error: observationsError } = await supabase
+    .from("fare_observations")
+    .select("id")
+    .eq("alert_id", alertId)
+    .eq("price_amount", price)
+    .neq("id", observationId)
+    .limit(50);
+
+  if (observationsError) throw observationsError;
+  if (!observations?.length) return false;
+
+  const observationIds = observations.map((observation) => observation.id);
+  const { data: notifications, error: notificationsError } = await supabase
+    .from("alert_notifications")
+    .select("id")
+    .eq("alert_id", alertId)
+    .eq("notification_type", "target_met")
+    .in("observation_id", observationIds)
+    .limit(1);
+
+  if (notificationsError) throw notificationsError;
+
+  return Boolean(notifications?.length);
+}
+
 async function fetchCheapestOffer(alert: FareAlert) {
   const url = new URL("https://api.travelpayouts.com/aviasales/v3/prices_for_dates");
   url.searchParams.set("origin", alert.origin_iata);
@@ -156,16 +182,20 @@ async function processAlert(alert: FareAlert) {
       observationId = observation.id;
 
       if (price <= alert.target_price_amount) {
-        await supabase.from("alert_notifications").insert({
-          user_id: alert.user_id,
-          alert_id: alert.id,
-          observation_id: observationId,
-          notification_type: "target_met",
-          status: "pending",
-          title: `${alert.destination_iata} 항공권 목표가 도달`,
-          body: `${alert.origin_iata}-${alert.destination_iata} 항공권이 ${price.toLocaleString("ko-KR")} ${alert.target_currency}에 발견되었습니다.`,
-          action_url: offer.deep_link || offer.link || null,
-        });
+        const alreadyNotifiedForPrice = await hasMatchingTargetNotification(alert.id, observationId, price);
+
+        if (!alreadyNotifiedForPrice) {
+          await supabase.from("alert_notifications").insert({
+            user_id: alert.user_id,
+            alert_id: alert.id,
+            observation_id: observationId,
+            notification_type: "target_met",
+            status: "pending",
+            title: `${alert.destination_iata} 항공권 목표가 도달`,
+            body: `${alert.origin_iata}-${alert.destination_iata} 항공권이 ${price.toLocaleString("ko-KR")} ${alert.target_currency}에 발견되었습니다.`,
+            action_url: offer.deep_link || offer.link || null,
+          });
+        }
       }
     }
 
